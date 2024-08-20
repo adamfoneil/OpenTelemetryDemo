@@ -1,0 +1,25 @@
+﻿@page "/Telemetry"
+@using OpenTelemetry.Trace
+@inject TracerProvider TracerProvider
+
+<h3>Custom Telemetry</h3>
+
+<button @onclick="SendCustomTelemetry">Send Custom Telemetry</button>
+
+@code {
+
+    private async Task SendCustomTelemetry()
+    {
+        var tracer = TracerProvider.GetTracer("BlazorAppTracer");
+
+        using var span = tracer.StartActiveSpan("CustomOperation");
+
+        span.SetAttribute("custom.attribute", "value");
+        
+        // Simulate some work
+
+        await Task.Delay(1000);
+
+        span.SetStatus(Status.Ok);        
+    }
+}
