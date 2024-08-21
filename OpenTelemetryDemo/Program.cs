@@ -19,11 +19,7 @@ builder.Services.AddOpenTelemetry().ConfigureResource(resource =>
 			.AddHttpClientInstrumentation()
 			.AddEntityFrameworkCoreInstrumentation()
 			.AddConsoleExporter()
-			.AddOtlpExporter(options =>
-			{
-				options.Endpoint = new Uri("http://jaeger:4317");
-				options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;				
-			}));
+			.AddOtlpExporter(options => options.Endpoint = new Uri("http://jaeger:4317")));
 
 var app = builder.Build();
 
