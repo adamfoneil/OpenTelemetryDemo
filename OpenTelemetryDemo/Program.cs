@@ -13,13 +13,12 @@ builder.Services.AddOpenTelemetry().ConfigureResource(resource =>
 	{
 		["service.version"] = Assembly.GetExecutingAssembly().GetName().Version!.ToString(),
 		["environment"] = builder.Environment.EnvironmentName
-	})).WithTracing(trace =>
-		trace
-			.AddAspNetCoreInstrumentation()
-			.AddHttpClientInstrumentation()
-			.AddEntityFrameworkCoreInstrumentation()
-			.AddConsoleExporter()
-			.AddOtlpExporter(options => options.Endpoint = new Uri("http://localhost:4317")));
+	})).WithTracing(trace => trace
+		.AddAspNetCoreInstrumentation()
+		.AddHttpClientInstrumentation()
+		.AddEntityFrameworkCoreInstrumentation()
+		.AddConsoleExporter()
+		.AddOtlpExporter(options => options.Endpoint = new Uri("http://localhost:4317")));
 
 var app = builder.Build();
 
