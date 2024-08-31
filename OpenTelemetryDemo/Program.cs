@@ -19,7 +19,7 @@ builder.Services.AddOpenTelemetry().ConfigureResource(resource =>
 			.AddHttpClientInstrumentation()
 			.AddEntityFrameworkCoreInstrumentation()
 			.AddConsoleExporter()
-			.AddOtlpExporter(options => options.Endpoint = new Uri("http://jaeger:4317")));
+			.AddOtlpExporter(options => options.Endpoint = new Uri("http://localhost:4317")));
 
 var app = builder.Build();
 
