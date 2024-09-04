@@ -1,6 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using OpenTelemetryDemo;
 using OpenTelemetryDemo.Components;
+using OpenTelemetryDemo.Data;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +23,9 @@ builder.Services.AddOpenTelemetry().ConfigureResource(resource =>
 		.AddConsoleExporter()
 		.AddOtlpExporter(options => options.Endpoint = new Uri("http://localhost:4317")));
 
+var connectionString = builder.Configuration.GetConnectionString("Default");
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -29,7 +35,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseStaticFiles();
 app.UseAntiforgery();
 

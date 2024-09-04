@@ -1,0 +1,52 @@
+﻿@page "/MyToDos"
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
+<h3>My To Do</h3>
+
+<EditForm Model="myToDo">
+	<InputText @bind-Value="myToDo.Description" />
+	<button type="submit" @onclick="InsertToDo">Add</button>
+</EditForm>
+
+<ul>
+	@foreach (var item in myToDos)
+	{
+		<li>
+			<InputCheckbox @bind-Value="item.IsComplete" @onchange="@(async (args) => await ToggleComplete(item))" />
+			@item.Description
+		</li>
+	}
+</ul>
+
+
+@code {
+	private ToDo myToDo = new ToDo();
+	private List<ToDo> myToDos = [];
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Refresh();
+	}
+
+	private async Task Refresh()
+	{
+		using var db = DbFactory.CreateDbContext();
+		myToDos = await db.ToDos.ToListAsync();
+	}
+
+	private async Task ToggleComplete(ToDo row)
+	{
+		using var db = DbFactory.CreateDbContext();		
+		db.Update(row);
+		await db.SaveChangesAsync();
+	}
+
+	private async Task InsertToDo()
+	{
+		using var db = DbFactory.CreateDbContext();
+		await db.ToDos.AddAsync(myToDo);
+		await db.SaveChangesAsync();
+		myToDo = new ToDo();
+		await Refresh();
+	}
+}
