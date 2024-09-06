@@ -1,0 +1,22 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+@baseUrl = https://localhost:7162
+
+GET {{baseUrl}}/api/todos
+
+###
+
+POST {{baseUrl}}/api/todos
+Content-Type: application/json
+
+{
+  "description": "whatever {{$randomInt}}",
+  "isComplete": false
+}
+
+###
+
+GET {{baseUrl}}/api/todos/3
+
+###
+
+GET {{baseUrl}}/routes

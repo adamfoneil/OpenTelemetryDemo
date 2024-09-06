@@ -2,7 +2,7 @@
 @inject ILogger<MyToDos> Logger
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 
-<h3>My To Do</h3>
+<h3>My ToDos</h3>
 
 <EditForm Model="myToDo">
 	<InputText @bind-Value="myToDo.Description" />
@@ -13,12 +13,11 @@
 	@foreach (var item in myToDos)
 	{
 		<li>
-			<InputCheckbox @bind-Value="item.IsComplete" @onchange="@(async (args) => await ToggleComplete(item))" />
+			<InputCheckbox @bind-Value="item.IsComplete" @oninput="() => ToggleComplete(item)" />
 			@item.Description
 		</li>
 	}
 </ul>
-
 
 @code {
 	private ToDo myToDo = new ToDo();
@@ -37,7 +36,10 @@
 
 	private async Task ToggleComplete(ToDo row)
 	{
-		Logger.LogInformation("Checkbox changed for rowId: {rowId}", row.Id);		
+		// row is in its original state without the checkbox change.
+		// for some reason the @onchange event is not firing, 
+		// so I have to use @oninput, and toggle the bool value manually.
+		row.IsComplete = !row.IsComplete; 
 		using var db = DbFactory.CreateDbContext();		
 		db.Update(row);
 		await db.SaveChangesAsync();

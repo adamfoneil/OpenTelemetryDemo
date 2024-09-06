@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
+builder.Services.AddControllers();
+
 builder.Services.AddOpenTelemetry().ConfigureResource(resource =>
 	resource.AddService("BlazorApp").AddAttributes(new Dictionary<string, object>()
 	{
@@ -24,7 +26,7 @@ builder.Services.AddOpenTelemetry().ConfigureResource(resource =>
 		.AddOtlpExporter(options => options.Endpoint = new Uri("http://localhost:4317")));
 
 var connectionString = builder.Configuration.GetConnectionString("Default");
-builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(connectionString).EnableSensitiveDataLogging().EnableDetailedErrors());
 
 var app = builder.Build();
 
@@ -41,5 +43,27 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
+
+app.MapControllers();
+
+// for debugging purposes
+app.MapGet("/routes", (IEnumerable<EndpointDataSource> endpointSources) =>
+{
+	var routes = endpointSources
+		.SelectMany(source => source.Endpoints)
+		.OfType<RouteEndpoint>()
+		.Select(endpoint =>
+		{
+			var methods = endpoint.Metadata.OfType<HttpMethodMetadata>().SelectMany(m => m.HttpMethods) ?? [];
+			return new
+			{				
+				Route = endpoint.RoutePattern.RawText,
+				Methods = string.Join(", ", methods)
+			};
+		});
+
+	return Results.Ok(routes);
+});
+
 
 app.Run();
