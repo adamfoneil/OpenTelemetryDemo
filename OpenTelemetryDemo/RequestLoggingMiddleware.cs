@@ -8,15 +8,14 @@ public class RequestLoggingMiddleware(RequestDelegate next)
 	{
 		context.Request.EnableBuffering();
 
-		using (var reader = new StreamReader(context.Request.Body, leaveOpen: true))
-		{
-			var body = await reader.ReadToEndAsync();
-			context.Request.Body.Position = 0; // Rewind the body stream for next middleware
+		using var reader = new StreamReader(context.Request.Body, leaveOpen: true);
+		
+		var body = await reader.ReadToEndAsync();
+		context.Request.Body.Position = 0; // Rewind the body stream for next middleware
 			
-			context.Items["RequestBody"] = body;			
-			var activity = System.Diagnostics.Activity.Current;
-			activity?.SetTag("http.request.body", body);
-		}
+		context.Items["RequestBody"] = body;			
+		var activity = System.Diagnostics.Activity.Current;
+		activity?.SetTag("http.request.body", body);	
 
 		await _next(context);
 	}
